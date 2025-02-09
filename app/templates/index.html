@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IATI Activities</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <h1>IATI Activities</h1>
+    <ul>
+        {% for activity in activities %}
+        <li>
+            <strong>{{ activity.title }}</strong> - {{ activity.start_date }} to {{ activity.end_date }}<br>
+            Total Transaction Value: {{ activity.total_transaction_value }} €<br>
+            Reporting Organization: {{ activity.reporting_org }}<br>
+            Recipient Countries: {{ activity.recipient_countries | join(', ') }}
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+
+</html>

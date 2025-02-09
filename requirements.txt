@@ -1,0 +1,3 @@
+Flask
+pycountry
+lxml
