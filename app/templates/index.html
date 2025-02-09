@@ -10,11 +10,31 @@
 
 <body>
     <h1>IATI Activities</h1>
+
+    <form method="get" action="/">
+        <label for="year">Year:</label>
+        <input type="number" id="year" name="year" value="{{ request.args.get('year', '') }}">
+
+        <label for="organization">Organization:</label>
+        <input type="text" id="organization" name="organization" value="{{ request.args.get('organization', '') }}">
+
+        <label for="min_value">Min Value:</label>
+        <input type="number" id="min_value" name="min_value" value="{{ request.args.get('min_value', '') }}">
+
+        <label for="max_value">Max Value:</label>
+        <input type="number" id="max_value" name="max_value" value="{{ request.args.get('max_value', '') }}">
+
+        <button type="submit">Filter</button>
+    </form>
+
+    <h2>Total Value for Current Filter:</h2>
+    <p>{{ '{:,.2f}'.format(activities | sum(attribute='total_transaction_value')) }} €</p>
+
     <ul>
         {% for activity in activities %}
         <li>
             <strong>{{ activity.title }}</strong> - {{ activity.start_date }} to {{ activity.end_date }}<br>
-            Total Transaction Value: {{ activity.total_transaction_value }} €<br>
+            Total Transaction Value: {{ '{:,.2f}'.format(activity.total_transaction_value) }} €<br>
             Reporting Organization: {{ activity.reporting_org }}<br>
             Recipient Countries: {{ activity.recipient_countries | join(', ') }}
         </li>

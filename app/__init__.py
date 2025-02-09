@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from bmz import IatiActivity
 import os
 import xml.etree.ElementTree as ET
@@ -33,6 +33,41 @@ def create_app():
 
     @app.route("/")
     def index():
-        return render_template("index.html", activities=all_activities)
+
+        filtered_activities = all_activities
+
+        year = request.args.get("year")
+        organization = request.args.get("organization")
+        min_value = request.args.get("min_value")
+        max_value = request.args.get("max_value")
+
+        if year:
+            filtered_activities = [
+                a
+                for a in filtered_activities
+                if a.start_date and a.start_date.startswith(year)
+            ]
+        if organization:
+            filtered_activities = [
+                a
+                for a in filtered_activities
+                if organization.lower() in (a.reporting_org or "").lower()
+            ]
+        if min_value:
+            filtered_activities = [
+                a
+                for a in filtered_activities
+                if a.total_transaction_value >= float(min_value)
+            ]
+        if max_value:
+            filtered_activities = [
+                a
+                for a in filtered_activities
+                if a.total_transaction_value <= float(max_value)
+            ]
+
+        filtered_activities.sort(key=lambda x: x.total_transaction_value, reverse=True)
+
+        return render_template("index.html", activities=filtered_activities)
 
     return app

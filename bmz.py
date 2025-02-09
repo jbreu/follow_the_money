@@ -1,3 +1,6 @@
+import pycountry
+
+
 class IatiActivity:
     def __init__(self):
         self.identifier = None
@@ -56,7 +59,12 @@ class IatiActivity:
 
         for country_elem in activity_element.findall("recipient-country"):
             country_code = country_elem.get("code")
-            self.recipient_countries.append(country_code)
+            try:
+                country = pycountry.countries.get(alpha_2=country_code)
+                country_name = country.name if country else country_code
+            except AttributeError:
+                country_name = country_code
+            self.recipient_countries.append(country_name)
 
         for sector_elem in activity_element.findall("sector"):
             self.sectors.append(sector_elem.get("code"))
