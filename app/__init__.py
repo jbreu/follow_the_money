@@ -117,6 +117,4 @@ def create_app():
             available_countries=available_countries,
         )
 
-        return render_template("index.html", activities=filtered_activities)
-
     return app
