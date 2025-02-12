@@ -82,10 +82,7 @@ class IatiActivity:
         for t in self.transactions:
             if t["value"] is not None:
                 date = t["date"]
-                if date not in daily_transactions:
-                    daily_transactions[date] = float(t["value"])
-                else:
-                    daily_transactions[date] += float(t["value"])
+                daily_transactions[date] = float(t["value"])
 
         self.total_transaction_value = sum(daily_transactions.values())
 
