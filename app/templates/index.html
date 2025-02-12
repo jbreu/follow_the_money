@@ -13,10 +13,31 @@
 
     <form method="get" action="">
         <label for="year">Year:</label>
-        <input type="number" id="year" name="year" value="{{ request.args.get('year', '') }}">
+        <select id="year" name="year">
+            <option value="">All Years</option>
+            {% for year in available_years %}
+            <option value="{{ year }}" {% if request.args.get('year')==year|string %}selected{% endif %}>{{ year }}
+            </option>
+            {% endfor %}
+        </select>
 
         <label for="organization">Organization:</label>
-        <input type="text" id="organization" name="organization" value="{{ request.args.get('organization', '') }}">
+        <select id="organization" name="organization">
+            <option value="">All Organizations</option>
+            {% for org in available_organizations %}
+            <option value="{{ org }}" {% if request.args.get('organization')==org %}selected{% endif %}>{{ org }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label for="country">Recipient Country:</label>
+        <select id="country" name="country">
+            <option value="">All Countries</option>
+            {% for country in available_countries %}
+            <option value="{{ country }}" {% if request.args.get('country')==country %}selected{% endif %}>{{ country }}
+            </option>
+            {% endfor %}
+        </select>
 
         <label for="min_value">Min Value:</label>
         <input type="number" id="min_value" name="min_value" value="{{ request.args.get('min_value', '') }}">
@@ -37,6 +58,23 @@
             Total Transaction Value: {{ '{:,.2f}'.format(activity.total_transaction_value) }} €<br>
             Reporting Organization: {{ activity.reporting_org }}<br>
             Recipient Countries: {{ activity.recipient_countries | join(', ') }}
+            <details>
+                <summary>View Transactions</summary>
+                <table>
+                    <tr>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Value (€)</th>
+                    </tr>
+                    {% for transaction in activity.transactions %}
+                    <tr>
+                        <td>{{ transaction.type }}</td>
+                        <td>{{ transaction.date }}</td>
+                        <td>{{ transaction.value }} €</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </details>
         </li>
         {% endfor %}
     </ul>
