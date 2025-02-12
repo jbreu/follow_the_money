@@ -5,79 +5,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IATI Activities</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 
-<body>
-    <h1>IATI Activities</h1>
+<body class="bg-light">
+    <div class="container py-4">
+        <h1 class="text-primary mb-4">IATI Activities</h1>
 
-    <form method="get" action="">
-        <label for="year">Year:</label>
-        <select id="year" name="year">
-            <option value="">All Years</option>
-            {% for year in available_years %}
-            <option value="{{ year }}" {% if request.args.get('year')==year|string %}selected{% endif %}>{{ year }}
-            </option>
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" action="" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="year" class="form-label">Year</label>
+                        <select id="year" name="year" class="form-select">
+                            <option value="">All Years</option>
+                            {% for year in available_years %}
+                            <option value="{{ year }}" {% if request.args.get('year')==year|string %}selected{% endif
+                                %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="organization" class="form-label">Organization</label>
+                        <select id="organization" name="organization" class="form-select">
+                            <option value="">All Organizations</option>
+                            {% for org in available_organizations %}
+                            <option value="{{ org }}" {% if request.args.get('organization')==org %}selected{% endif %}>
+                                {{ org }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="country" class="form-label">Recipient Country</label>
+                        <select id="country" name="country" class="form-select">
+                            <option value="">All Countries</option>
+                            {% for country in available_countries %}
+                            <option value="{{ country }}" {% if request.args.get('country')==country %}selected{% endif
+                                %}>{{ country }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="min_value" class="form-label">Min Value (€)</label>
+                        <input type="number" class="form-control" id="min_value" name="min_value"
+                            value="{{ request.args.get('min_value', '') }}">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="max_value" class="form-label">Max Value (€)</label>
+                        <input type="number" class="form-control" id="max_value" name="max_value"
+                            value="{{ request.args.get('max_value', '') }}">
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="card-title">Total Value for Current Filter</h4>
+                <h2 class="text-success">{{ '{:,.2f}'.format(activities | sum(attribute='total_transaction_value')) }} €
+                </h2>
+            </div>
+        </div>
+
+        <div class="list-group">
+            {% for activity in activities %}
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between mb-2">
+                    <h5 class="mb-1">{{ activity.title }}</h5>
+                    <span class="badge bg-primary">{{ '{:,.2f}'.format(activity.total_transaction_value) }} €</span>
+                </div>
+                <p class="mb-1">
+                    <small class="text-muted">
+                        Period: {{ activity.start_date }} to {{ activity.end_date }}<br>
+                        Organization: {{ activity.reporting_org }}<br>
+                        Countries: {{ activity.recipient_countries | join(', ') }}
+                    </small>
+                </p>
+                <details class="mt-2">
+                    <summary class="btn btn-sm btn-outline-secondary">View Transactions</summary>
+                    <div class="table-responsive mt-2">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Value (€)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in activity.transactions %}
+                                <tr>
+                                    <td>{{ transaction.type }}</td>
+                                    <td>{{ transaction.date }}</td>
+                                    <td>{{ transaction.value }} €</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </details>
+            </div>
             {% endfor %}
-        </select>
+        </div>
+    </div>
 
-        <label for="organization">Organization:</label>
-        <select id="organization" name="organization">
-            <option value="">All Organizations</option>
-            {% for org in available_organizations %}
-            <option value="{{ org }}" {% if request.args.get('organization')==org %}selected{% endif %}>{{ org }}
-            </option>
-            {% endfor %}
-        </select>
-
-        <label for="country">Recipient Country:</label>
-        <select id="country" name="country">
-            <option value="">All Countries</option>
-            {% for country in available_countries %}
-            <option value="{{ country }}" {% if request.args.get('country')==country %}selected{% endif %}>{{ country }}
-            </option>
-            {% endfor %}
-        </select>
-
-        <label for="min_value">Min Value:</label>
-        <input type="number" id="min_value" name="min_value" value="{{ request.args.get('min_value', '') }}">
-
-        <label for="max_value">Max Value:</label>
-        <input type="number" id="max_value" name="max_value" value="{{ request.args.get('max_value', '') }}">
-
-        <button type="submit">Filter</button>
-    </form>
-
-    <h2>Total Value for Current Filter:</h2>
-    <p>{{ '{:,.2f}'.format(activities | sum(attribute='total_transaction_value')) }} €</p>
-
-    <ul>
-        {% for activity in activities %}
-        <li>
-            <strong>{{ activity.title }}</strong> - {{ activity.start_date }} to {{ activity.end_date }}<br>
-            Total Transaction Value: {{ '{:,.2f}'.format(activity.total_transaction_value) }} €<br>
-            Reporting Organization: {{ activity.reporting_org }}<br>
-            Recipient Countries: {{ activity.recipient_countries | join(', ') }}
-            <details>
-                <summary>View Transactions</summary>
-                <table>
-                    <tr>
-                        <th>Type</th>
-                        <th>Date</th>
-                        <th>Value (€)</th>
-                    </tr>
-                    {% for transaction in activity.transactions %}
-                    <tr>
-                        <td>{{ transaction.type }}</td>
-                        <td>{{ transaction.date }}</td>
-                        <td>{{ transaction.value }} €</td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            </details>
-        </li>
-        {% endfor %}
-    </ul>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
