@@ -77,9 +77,17 @@ class IatiActivity:
             }
             self.transactions.append(transaction)
 
-        self.total_transaction_value = sum(
-            float(t["value"]) for t in self.transactions if t["value"] is not None
-        )
+        # Create a dict to keep only the latest transaction per date
+        daily_transactions = {}
+        for t in self.transactions:
+            if t["value"] is not None:
+            date = t["date"]
+            if date not in daily_transactions:
+                daily_transactions[date] = float(t["value"])
+            else:
+                daily_transactions[date] += float(t["value"])
+        
+        self.total_transaction_value = sum(daily_transactions.values())
 
     def __str__(self):
         return f"IATI Activity: {self.identifier} - {self.title}"
