@@ -40,6 +40,7 @@ def create_app():
         organization = request.args.get("organization")
         min_value = request.args.get("min_value")
         max_value = request.args.get("max_value")
+        country = request.args.get("country")
 
         if year:
             filtered_activities = [
@@ -65,8 +66,56 @@ def create_app():
                 for a in filtered_activities
                 if a.total_transaction_value <= float(max_value)
             ]
+        if country:
+            filtered_activities = [
+                a
+                for a in filtered_activities
+                if country in (a.recipient_countries or [])
+            ]
 
         filtered_activities.sort(key=lambda x: x.total_transaction_value, reverse=True)
+
+        # Get unique years from start dates
+        available_years = sorted(
+            list(
+                set(
+                    activity.start_date[:4]
+                    for activity in all_activities
+                    if activity.start_date
+                )
+            ),
+            reverse=True,
+        )
+
+        # Get unique organizations
+        available_organizations = sorted(
+            list(
+                set(
+                    activity.reporting_org
+                    for activity in all_activities
+                    if activity.reporting_org
+                )
+            )
+        )
+
+        # Get unique recipient countries
+        available_countries = sorted(
+            list(
+                set(
+                    country
+                    for activity in all_activities
+                    for country in (activity.recipient_countries or [])
+                )
+            )
+        )
+
+        return render_template(
+            "index.html",
+            activities=filtered_activities,
+            available_years=available_years,
+            available_organizations=available_organizations,
+            available_countries=available_countries,
+        )
 
         return render_template("index.html", activities=filtered_activities)
 
