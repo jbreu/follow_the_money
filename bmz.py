@@ -64,7 +64,7 @@ class IatiActivity:
                 country_name = country.name if country else country_code
             except AttributeError:
                 country_name = country_code
-            self.recipient_countries.append(country_name)
+            self.recipient_countries.append(country_code + " - " + country_name)
 
         for sector_elem in activity_element.findall("sector"):
             self.sectors.append(sector_elem.get("code"))
