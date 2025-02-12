@@ -80,7 +80,7 @@ class IatiActivity:
         # Create a dict to keep only the latest transaction per date
         daily_transactions = {}
         for t in self.transactions:
-            if t["value"] is not None:
+            if t["value"] is not None and t["type"] != "2":
                 date = t["date"]
                 daily_transactions[date] = float(t["value"])
 
