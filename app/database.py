@@ -27,7 +27,11 @@ def init_db():
             end_date TEXT,
             reporting_org TEXT,
             total_transaction_value REAL,
-            recipient_countries TEXT
+            recipient_countries TEXT,
+            recipient_organization TEXT,
+            recipient_is_owned_by_german_federal_government BOOLEAN,
+            legal_basis TEXT,
+            type_of_grant TEXT
         )
         """
         )
@@ -49,7 +53,7 @@ def init_db():
 def _insert_activity(conn, activity):
     conn.execute(
         """
-    INSERT OR REPLACE INTO activities VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT OR REPLACE INTO activities VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """,
         (
             activity.identifier,
@@ -64,6 +68,10 @@ def _insert_activity(conn, activity):
                 if activity.recipient_countries
                 else None
             ),
+            activity.recipient_organization,
+            activity.recipient_is_owned_by_german_federal_government,
+            activity.legal_basis,
+            activity.type_of_grant,
         ),
     )
 
@@ -107,6 +115,7 @@ def get_filtered_activities(
     max_value=None,
     country=None,
     search=None,
+    recipient_organization=None,
 ):
     conditions = []
     params = []
@@ -129,6 +138,9 @@ def get_filtered_activities(
     if country:
         conditions.append("recipient_countries LIKE ?")
         params.append(f"%{country}%")
+    if recipient_organization:
+        conditions.append("recipient_organization LIKE ?")
+        params.append(f"%{recipient_organization}%")
 
     where_clause = " AND ".join(conditions) if conditions else "1"
 
@@ -172,12 +184,24 @@ def get_metadata():
         """
         ).fetchall()
 
+        recipient_orgs = conn.execute(
+            """
+            SELECT DISTINCT recipient_organization 
+            FROM activities 
+            WHERE recipient_organization IS NOT NULL
+            ORDER BY recipient_organization
+        """
+        ).fetchall()
+
         return {
             "years": [r["year"] for r in years],
             "organizations": [r["reporting_org"] for r in orgs],
             "countries": set(
                 c for r in countries for c in r["recipient_countries"].split(",")
             ),
+            "recipient_organizations": [
+                r["recipient_organization"] for r in recipient_orgs
+            ],
         }
 
 

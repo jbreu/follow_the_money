@@ -2,3 +2,4 @@ Flask
 pycountry
 lxml
 tqdm
+pdfplumber

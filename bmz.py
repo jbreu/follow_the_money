@@ -1,21 +1,10 @@
 import pycountry
+from activity import Activity
 
 
-class IatiActivity:
+class IatiActivity(Activity):
     def __init__(self):
-        self.identifier = None
-        self.title = None
-        self.description = None
-        self.status = None
-        self.start_date = None
-        self.end_date = None
-        self.budget = None
-        self.participating_orgs = []
-        self.recipient_countries = []
-        self.sectors = []
-        self.transactions = []
-        self.total_transaction_value = 0.0
-        self.reporting_org = None
+        super().__init__()
 
     def from_xml_element(self, activity_element):
         identifier_elem = activity_element.find("iati-identifier")
@@ -105,6 +94,3 @@ class IatiActivity:
             self.start_date = min(transaction_dates)
             if len(transaction_dates) > 1:
                 self.end_date = max(transaction_dates)
-
-    def __str__(self):
-        return f"IATI Activity: {self.identifier} - {self.title}"

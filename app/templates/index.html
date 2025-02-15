@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IATI Activities</title>
+    <title>Germoney</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 
 <body class="bg-light">
     <div class="container py-4">
-        <h1 class="text-primary mb-4">IATI Activities</h1>
+        <h1 class="text-primary mb-4">Germoney</h1>
         <h2 class="text-primary mb-4">German government spending to foreign and/or non-governmental organizations
         </h2>
 
@@ -56,17 +56,84 @@
                         </select>
                     </div>
 
-                    <div class="col-md-3">
-                        <label for="min_value" class="form-label">Min Value (€)</label>
-                        <input type="number" class="form-control" id="min_value" name="min_value"
-                            value="{{ request.args.get('min_value', '') }}">
+                    <div class="col-md-4">
+                        <label for="recipient_organization" class="form-label">Recipient Organization</label>
+                        <select id="recipient_organization" name="recipient_organization" class="form-select">
+                            <option value="">All Recipients</option>
+                            {% for org in available_recipient_organizations %}
+                            <option value="{{ org }}" {% if request.args.get('recipient_organization')==org %}selected{%
+                                endif %}>
+                                {{ org }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
-                    <div class="col-md-3">
-                        <label for="max_value" class="form-label">Max Value (€)</label>
-                        <input type="number" class="form-control" id="max_value" name="max_value"
-                            value="{{ request.args.get('max_value', '') }}">
+                    <div class="col-md-8">
+                        <label class="form-label">Value Range (€)</label>
+                        <div class="px-2">
+                            <div id="slider-range"></div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <span id="minValue">0 €</span>
+                                <span id="maxValue">1B €</span>
+                            </div>
+                            <input type="hidden" name="min_value" id="min_value_input">
+                            <input type="hidden" name="max_value" id="max_value_input">
+                        </div>
                     </div>
+
+                    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+                    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
+                    <script>
+                        $(document).ready(function () {
+                            const logSlider = (position) => {
+                                const minp = 0;
+                                const maxp = 100;
+                                const minv = Math.log(1);
+                                const maxv = Math.log(1000000000);
+                                const scale = (maxv - minv) / (maxp - minp);
+                                return Math.exp(minv + scale * (position - minp));
+                            };
+
+                            const logPosition = (value) => {
+                                const minp = 0;
+                                const maxp = 100;
+                                const minv = Math.log(1);
+                                const maxv = Math.log(1000000000);
+                                const scale = (maxv - minv) / (maxp - minp);
+                                return (Math.log(value) - minv) / scale + minp;
+                            };
+
+                            $("#slider-range").slider({
+                                range: true,
+                                min: 0,
+                                max: 100,
+                                values: [
+                                    logPosition(Math.max(1, {{ request.args.get('min_value', '1') | int }})),
+                            logPosition({{ request.args.get('max_value', '1000000000') | int }})
+                                ],
+                        slide: function (event, ui) {
+                            const realValues = [
+                                Math.floor(logSlider(ui.values[0])),
+                                Math.floor(logSlider(ui.values[1]))
+                            ];
+
+                            const formatValue = (value) => {
+                                if (value >= 1000000000) return '1B €';
+                                if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M €';
+                                if (value >= 1000) return (value / 1000).toFixed(1) + 'K €';
+                                return value.toLocaleString() + ' €';
+                            };
+
+                            $("#minValue").text(formatValue(realValues[0]));
+                            $("#maxValue").text(formatValue(realValues[1]));
+                            $("#min_value_input").val(realValues[0]);
+                            $("#max_value_input").val(realValues[1]);
+                        }
+                            });
+                        });
+                    </script>
 
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary">Apply Filters</button>
@@ -83,6 +150,55 @@
                 </h2>
             </div>
         </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="card-title">Top 10 Spendings</h4>
+                <div style="height: 300px;">
+                    <canvas id="spendingChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const ctx = document.getElementById('spendingChart').getContext('2d');
+            const data = {
+                labels: {{ activities[:10] | map(attribute = 'title') | list | tojson }},
+            datasets: [{
+                label: 'Spending Amount (€)',
+                data: {{ activities[: 10] | map(attribute = 'total_transaction_value') | list | tojson }},
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            };
+            new Chart(ctx, {
+                type: 'bar',
+                data: data,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    if (value >= 1e9) return (value / 1e9).toFixed(1) + 'B €';
+                                    if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M €';
+                                    if (value >= 1e3) return (value / 1e3).toFixed(1) + 'K €';
+                                    return value + ' €';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
 
         <div class="list-group">
             {% if activities|length > 100 %}
@@ -112,6 +228,16 @@
                         {% else %}
                         Not specified
                         {% endif %}
+
+                        <br>
+                        Recipient Organization: {{ activity.recipient_organization if activity.recipient_organization
+                        else 'Not specified' }}<br>
+                        {% if activity.recipient_is_owned_by_german_federal_government is not none %}
+                        Federal Government Ownership: {{ 'Yes' if
+                        activity.recipient_is_owned_by_german_federal_government else 'No' }}<br>
+                        {% endif %}
+                        {% if activity.legal_basis %}Legal Basis: {{ activity.legal_basis }}<br>{% endif %}
+                        {% if activity.type_of_grant %}Type of Grant: {{ activity.type_of_grant }}<br>{% endif %}
                     </small>
                 </p>
                 <details class="mt-2">
@@ -153,6 +279,12 @@
                     </li>
                     <li class="list-group-item">Ressorts C: <a
                             href="https://teamwork.bmz.de/pub/bscw.cgi/9134919/DE-1-Ressorts_C.xml">DE-1-Ressorts_C.xml</a>
+                    </li>
+                    <li class="list-group-item">New Data Source: <a
+                            href="https://dserver.bundestag.de/btd/20/088/2008838.pdf">Finanzierung von
+                            Nichtregierungsorganisationen (Nachfrage zur Antwort der
+                            Bundesregierung auf die Kleine Anfrage auf Bundestagsdrucksache 20/7884)</a>
+
                     </li>
                 </ul>
             </div>
