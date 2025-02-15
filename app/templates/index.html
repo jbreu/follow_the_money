@@ -210,7 +210,8 @@
             <div class="list-group-item">
                 <div class="d-flex w-100 justify-content-between mb-2">
                     <h5 class="mb-1">{{ activity.title }}</h5>
-                    <span class="badge bg-primary">{{ '{:,.2f}'.format(activity.total_transaction_value) }} €</span>
+                    <span class="badge bg-primary" style="height: fit-content">{{
+                        '{:,.2f}'.format(activity.total_transaction_value) }} €</span>
                 </div>
                 <p class="mb-1">
                     <small class="text-muted">
