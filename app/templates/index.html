@@ -12,11 +12,17 @@
 <body class="bg-light">
     <div class="container py-4">
         <h1 class="text-primary mb-4">IATI Activities</h1>
-        <h2 class="text-primary mb-4">German government spending to foreign organizations</h2>
+        <h2 class="text-primary mb-4">German government spending to foreign and/or non-governmental organizations
+        </h2>
 
         <div class="card mb-4">
             <div class="card-body">
                 <form method="get" action="" class="row g-3">
+                    <div class="col-md-12 mb-3">
+                        <label for="search" class="form-label">Search in titles</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                            value="{{ request.args.get('search', '') }}" placeholder="Enter search terms...">
+                    </div>
                     <div class="col-md-4">
                         <label for="year" class="form-label">Year</label>
                         <select id="year" name="year" class="form-select">
@@ -72,7 +78,8 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h4 class="card-title">Total Value for Current Filter</h4>
-                <h2 class="text-success">{{ '{:,.2f}'.format(activities | sum(attribute='total_transaction_value')) }} €
+                <h2 class="text-success">{{ '{:,.2f}'.format(activities | sum(attribute='total_transaction_value'))
+                    }} €
                 </h2>
             </div>
         </div>
@@ -91,7 +98,9 @@
                 </div>
                 <p class="mb-1">
                     <small class="text-muted">
-                        Period: {{ activity.start_date }} to {{ activity.end_date }}<br>
+                        Period: {{ activity.start_date }} {% if activity.end_date %}to {{ activity.end_date }}{%
+                        endif
+                        %}<br>
                         Organization: {{ activity.reporting_org }}<br>
                         Countries: {{ activity.recipient_countries | join(', ') }}
                     </small>

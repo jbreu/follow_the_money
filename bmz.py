@@ -42,14 +42,6 @@ class IatiActivity:
         if status_elem is not None:
             self.status = status_elem.get("code")
 
-        start_date_elem = activity_element.find('activity-date[@type="1"]')
-        if start_date_elem is not None:
-            self.start_date = start_date_elem.get("iso-date")
-
-        end_date_elem = activity_element.find('activity-date[@type="2"]')
-        if end_date_elem is not None:
-            self.end_date = end_date_elem.get("iso-date")
-
         budget_elem = activity_element.find("budget")
         if budget_elem is not None:
             self.budget = budget_elem.find("value").text
@@ -69,9 +61,24 @@ class IatiActivity:
         for sector_elem in activity_element.findall("sector"):
             self.sectors.append(sector_elem.get("code"))
 
+        transaction_type_map = {
+            "1": "Incoming Funds",
+            "2": "Outgoing Commitment",
+            "3": "Disbursement",
+            "4": "Expenditure",
+            "5": "Interest Payment",
+            "6": "Loan Repayment",
+            "7": "Reimbursement",
+            "8": "Purchase of Equity",
+            "9": "Sale of Equity",
+            "10": "Credit Guarantee",
+            "11": "Incoming Commitment",
+        }
+
         for transaction_elem in activity_element.findall("transaction"):
+            type_code = transaction_elem.find("transaction-type").get("code")
             transaction = {
-                "type": transaction_elem.find("transaction-type").get("code"),
+                "type": transaction_type_map.get(type_code, type_code),
                 "date": transaction_elem.find("transaction-date").get("iso-date"),
                 "value": transaction_elem.find("value").text,
             }
@@ -80,11 +87,22 @@ class IatiActivity:
         # Create a dict to keep only the latest transaction per date
         daily_transactions = {}
         for t in self.transactions:
-            if t["value"] is not None and t["type"] != "2":
+            if t["value"] is not None and t["type"] != "Outgoing Commitment":
                 date = t["date"]
                 daily_transactions[date] = float(t["value"])
 
         self.total_transaction_value = sum(daily_transactions.values())
+
+        # Set start and end dates based on transaction dates
+        transaction_dates = [
+            t["date"]
+            for t in self.transactions
+            if t["date"] is not None and t["type"] != "Outgoing Commitment"
+        ]
+        if transaction_dates:
+            self.start_date = min(transaction_dates)
+            if len(transaction_dates) > 1:
+                self.end_date = max(transaction_dates)
 
     def __str__(self):
         return f"IATI Activity: {self.identifier} - {self.title}"

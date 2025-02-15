@@ -41,6 +41,15 @@ def create_app():
         min_value = request.args.get("min_value")
         max_value = request.args.get("max_value")
         country = request.args.get("country")
+        search = request.args.get("search")
+
+        if search:
+            search_terms = search.lower().split()
+            filtered_activities = [
+                a
+                for a in filtered_activities
+                if a.title and all(term in a.title.lower() for term in search_terms)
+            ]
 
         if year:
             filtered_activities = [
