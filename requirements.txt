@@ -1,3 +1,4 @@
 Flask
 pycountry
 lxml
+tqdm
