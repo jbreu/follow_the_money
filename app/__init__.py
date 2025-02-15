@@ -2,6 +2,13 @@ from flask import Flask, render_template, request
 from bmz import IatiActivity
 import os
 import xml.etree.ElementTree as ET
+from .database import (
+    init_db,
+    batch_insert_activities,
+    get_filtered_activities,
+    get_metadata,
+    get_activity_transactions,
+)
 
 
 def read_iati_activities(xml_file_path):
@@ -20,110 +27,49 @@ def read_iati_activities(xml_file_path):
 def create_app():
     app = Flask(__name__)
 
-    input_dir = os.path.join("input")
-    all_activities = []
+    # Initialize database only if it doesn't exist
+    db_path = os.path.join(os.path.dirname(__file__), "activities.db")
+    if not os.path.exists(db_path):
+        # Initialize database and load data
+        init_db()
+        input_dir = os.path.join("input")
 
-    for filename in os.listdir(input_dir):
-        if filename.endswith(".xml"):
-            xml_path = os.path.join(input_dir, filename)
-            iati_activities = read_iati_activities(xml_path)
-            all_activities.extend(iati_activities)
-
-    all_activities.sort(key=lambda x: x.total_transaction_value, reverse=True)
+        # Load XML data into SQLite using batch inserts
+        for filename in os.listdir(input_dir):
+            if filename.endswith(".xml"):
+                xml_path = os.path.join(input_dir, filename)
+                activities = read_iati_activities(xml_path)
+                batch_insert_activities(activities)
 
     @app.route("/")
     def index():
 
-        filtered_activities = all_activities
-
-        year = request.args.get("year")
-        organization = request.args.get("organization")
-        min_value = request.args.get("min_value")
-        max_value = request.args.get("max_value")
-        country = request.args.get("country")
-        search = request.args.get("search")
-
-        if search:
-            search_terms = search.lower().split()
-            filtered_activities = [
-                a
-                for a in filtered_activities
-                if a.title and all(term in a.title.lower() for term in search_terms)
-            ]
-
-        if year:
-            filtered_activities = [
-                a
-                for a in filtered_activities
-                if a.start_date and a.start_date.startswith(year)
-            ]
-        if organization:
-            filtered_activities = [
-                a
-                for a in filtered_activities
-                if organization.lower() in (a.reporting_org or "").lower()
-            ]
-        if min_value:
-            filtered_activities = [
-                a
-                for a in filtered_activities
-                if a.total_transaction_value >= float(min_value)
-            ]
-        if max_value:
-            filtered_activities = [
-                a
-                for a in filtered_activities
-                if a.total_transaction_value <= float(max_value)
-            ]
-        if country:
-            filtered_activities = [
-                a
-                for a in filtered_activities
-                if country in (a.recipient_countries or [])
-            ]
-
-        filtered_activities.sort(key=lambda x: x.total_transaction_value, reverse=True)
-
-        # Get unique years from start dates
-        available_years = sorted(
-            list(
-                set(
-                    activity.start_date[:4]
-                    for activity in all_activities
-                    if activity.start_date
-                )
-            ),
-            reverse=True,
-        )
-
-        # Get unique organizations
-        available_organizations = sorted(
-            list(
-                set(
-                    activity.reporting_org
-                    for activity in all_activities
-                    if activity.reporting_org
-                )
+        filtered_activities = [
+            dict(a)
+            for a in get_filtered_activities(
+                year=request.args.get("year"),
+                organization=request.args.get("organization"),
+                min_value=request.args.get("min_value"),
+                max_value=request.args.get("max_value"),
+                country=request.args.get("country"),
+                search=request.args.get("search"),
             )
-        )
+        ]
 
-        # Get unique recipient countries
-        available_countries = sorted(
-            list(
-                set(
-                    country
-                    for activity in all_activities
-                    for country in (activity.recipient_countries or [])
-                )
-            )
-        )
+        # Limit to 100 filtered activities before adding transactions
+        for activity in filtered_activities[:100]:
+            activity["transactions"] = [
+                dict(t) for t in get_activity_transactions(activity["iati_identifier"])
+            ]
+
+        metadata = get_metadata()
 
         return render_template(
             "index.html",
             activities=filtered_activities,
-            available_years=available_years,
-            available_organizations=available_organizations,
-            available_countries=available_countries,
+            available_years=metadata["years"],
+            available_organizations=metadata["organizations"],
+            available_countries=metadata["countries"],
         )
 
     return app

@@ -18,7 +18,9 @@ class IatiActivity:
         self.reporting_org = None
 
     def from_xml_element(self, activity_element):
-        self.identifier = activity_element.get("iati-identifier")
+        identifier_elem = activity_element.find("iati-identifier")
+        if identifier_elem is not None:
+            self.identifier = identifier_elem.text
 
         reporting_org_elem = activity_element.find("reporting-org")
         if reporting_org_elem is not None:

@@ -85,12 +85,12 @@
         </div>
 
         <div class="list-group">
-            {% if activities|length > 1000 %}
+            {% if activities|length > 100 %}
             <div class="alert alert-info mb-3">
-                Showing first 1000 of {{ activities|length }} entries for performance reasons
+                Showing first 100 of {{ activities|length }} entries for performance reasons
             </div>
             {% endif %}
-            {% for activity in activities[:1000] %}
+            {% for activity in activities[:100] %}
             <div class="list-group-item">
                 <div class="d-flex w-100 justify-content-between mb-2">
                     <h5 class="mb-1">{{ activity.title }}</h5>
@@ -102,7 +102,16 @@
                         endif
                         %}<br>
                         Organization: {{ activity.reporting_org }}<br>
-                        Countries: {{ activity.recipient_countries | join(', ') }}
+                        Countries: {% if activity.recipient_countries %}
+                        {% if activity.recipient_countries is string %}
+                        {{ activity.recipient_countries }}
+                        {% else %}
+                        {{ activity.recipient_countries|join(', ') if activity.recipient_countries is iterable else ''
+                        }}
+                        {% endif %}
+                        {% else %}
+                        Not specified
+                        {% endif %}
                     </small>
                 </p>
                 <details class="mt-2">
