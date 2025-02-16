@@ -121,8 +121,8 @@ def get_filtered_activities(
     params = []
 
     if search:
-        conditions.append("title LIKE ?")
-        params.append(f"%{search}%")
+        conditions.append("(title LIKE ? OR recipient_organization LIKE ?)")
+        params.extend([f"%{search}%", f"%{search}%"])
     if year:
         conditions.append("start_date LIKE ?")
         params.append(f"{year}%")
