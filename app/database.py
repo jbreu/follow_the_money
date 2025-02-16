@@ -121,8 +121,10 @@ def get_filtered_activities(
     params = []
 
     if search:
-        conditions.append("(title LIKE ? OR recipient_organization LIKE ?)")
-        params.extend([f"%{search}%", f"%{search}%"])
+        conditions.append(
+            "(title LIKE ? OR recipient_organization LIKE ? OR legal_basis LIKE ?)"
+        )
+        params.extend([f"%{search}%", f"%{search}%", f"%{search}%"])
     if year:
         conditions.append("start_date LIKE ?")
         params.append(f"{year}%")
@@ -171,7 +173,7 @@ def get_metadata():
             SELECT DISTINCT reporting_org 
             FROM activities 
             WHERE reporting_org IS NOT NULL
-            ORDER BY reporting_org
+            ORDER BY reporting_org ASC
         """
         ).fetchall()
 
@@ -180,7 +182,7 @@ def get_metadata():
             SELECT DISTINCT recipient_countries 
             FROM activities 
             WHERE recipient_countries IS NOT NULL
-            ORDER BY recipient_countries
+            ORDER BY recipient_countries ASC
         """
         ).fetchall()
 
@@ -189,16 +191,14 @@ def get_metadata():
             SELECT DISTINCT recipient_organization 
             FROM activities 
             WHERE recipient_organization IS NOT NULL
-            ORDER BY recipient_organization
+            ORDER BY recipient_organization ASC
         """
         ).fetchall()
 
         return {
             "years": [r["year"] for r in years],
             "organizations": [r["reporting_org"] for r in orgs],
-            "countries": set(
-                c for r in countries for c in r["recipient_countries"].split(",")
-            ),
+            "countries": [c["recipient_countries"] for c in countries],
             "recipient_organizations": [
                 r["recipient_organization"] for r in recipient_orgs
             ],

@@ -20,7 +20,7 @@
             <div class="card-body">
                 <form method="get" action="" class="row g-3">
                     <div class="col-md-12 mb-3">
-                        <label for="search" class="form-label">Search in titles and organizations</label>
+                        <label for="search" class="form-label">Full text search</label>
                         <input type="text" class="form-control" id="search" name="search"
                             value="{{ request.args.get('search', '') }}" placeholder="Enter search terms...">
                     </div>
@@ -198,20 +198,24 @@
             <div class="card-body">
                 <h4 class="card-title">Data Sources</h4>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item">BMZ IATI Export: <a
+                    <li class="list-group-item">Transparenzportal des BMZ: <a
                             href="https://www.transparenzportal.bund.de/api/v1/activities/download/xml/bmz-iati-export.xml">bmz-iati-export.xml</a>
                     </li>
-                    <li class="list-group-item">Ressorts R: <a
+                    <li class="list-group-item">Transparenzportal des BMZ: <a
                             href="https://teamwork.bmz.de/pub/bscw.cgi/9134919/DE-1-Ressorts_R.xml">DE-1-Ressorts_R.xml</a>
                     </li>
-                    <li class="list-group-item">Ressorts C: <a
+                    <li class="list-group-item">Transparenzportal des BMZ: <a
                             href="https://teamwork.bmz.de/pub/bscw.cgi/9134919/DE-1-Ressorts_C.xml">DE-1-Ressorts_C.xml</a>
                     </li>
-                    <li class="list-group-item">New Data Source: <a
+                    <li class="list-group-item">Bundestag: <a
                             href="https://dserver.bundestag.de/btd/20/088/2008838.pdf">Finanzierung von
                             Nichtregierungsorganisationen (Nachfrage zur Antwort der
                             Bundesregierung auf die Kleine Anfrage auf Bundestagsdrucksache 20/7884)</a>
 
+                    </li>
+                    <li class="list-group-item">Bundestag: <a
+                            href="https://dserver.bundestag.de/btd/20/038/2003843.pdf">Förderung von
+                            Nichtregierungsorganisationen durch die Bundesregierung</a>
                     </li>
                 </ul>
             </div>

@@ -1,4 +1,33 @@
 from activity import Activity
+import pdfplumber
+
+
+def read_kleine_anfrage208838_activities(pdf_file_path):
+    activities = []
+    with pdfplumber.open(pdf_file_path) as pdf:
+        for page in pdf.pages[3:94]:
+            tables = page.extract_tables()
+            for table in tables:
+                print(
+                    f"Processing table {tables.index(table) + 1} on page {pdf.pages.index(page) + 1}"
+                )
+                for row in table:
+                    activity = KleineAnfrage208838()
+                    if activity.from_pdf_table_row(row) is not None:
+                        activities.append(activity)
+
+        for page in pdf.pages[95:]:
+            tables = page.extract_tables()
+            for table in tables:
+                print(
+                    f"Processing table {tables.index(table) + 1} on page {pdf.pages.index(page) + 1}"
+                )
+                for row in table:
+                    activity = KleineAnfrage208838()
+                    if activity.from_pdf_table_row(row, 2024) is not None:
+                        activities.append(activity)
+
+    return activities
 
 
 class KleineAnfrage208838(Activity):
@@ -18,7 +47,7 @@ class KleineAnfrage208838(Activity):
         self.recipient_countries.append("Germany")
         self.reporting_org = row[0]
         self.identifier = row[1] + " " + row[2] + row[3]
-        self.recipient_organization = row[2] + row[3]
+        self.recipient_organization = (row[2] + row[3]).strip()
         self.title = "Förderung nach " + row[4]
         self.recipient_is_owned_by_german_federal_government = (
             bool(row[2]) and row[2] != "nicht einschlägig"
