@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from bmz import IatiActivity
-from kleineAnfrage1 import KleineAnfrage
+from kleineAnfrage208838 import KleineAnfrage208838
 import os
 import pdfplumber
 import xml.etree.ElementTree as ET
@@ -36,7 +36,7 @@ def read_kleine_anfrage_activities(pdf_file_path):
                     f"Processing table {tables.index(table) + 1} on page {pdf.pages.index(page) + 1}"
                 )
                 for row in table:
-                    activity = KleineAnfrage()
+                    activity = KleineAnfrage208838()
                     if activity.from_pdf_table_row(row) is not None:
                         activities.append(activity)
 
@@ -47,7 +47,7 @@ def read_kleine_anfrage_activities(pdf_file_path):
                     f"Processing table {tables.index(table) + 1} on page {pdf.pages.index(page) + 1}"
                 )
                 for row in table:
-                    activity = KleineAnfrage()
+                    activity = KleineAnfrage208838()
                     if activity.from_pdf_table_row(row, 2024) is not None:
                         activities.append(activity)
 

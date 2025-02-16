@@ -1,7 +1,7 @@
 from activity import Activity
 
 
-class KleineAnfrage(Activity):
+class KleineAnfrage208838(Activity):
     def __init__(self):
         super().__init__()
 
