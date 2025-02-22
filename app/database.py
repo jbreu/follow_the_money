@@ -173,7 +173,7 @@ def get_metadata():
             SELECT DISTINCT reporting_org 
             FROM activities 
             WHERE reporting_org IS NOT NULL
-            ORDER BY reporting_org ASC
+            ORDER BY reporting_org COLLATE NOCASE ASC
         """
         ).fetchall()
 
@@ -182,7 +182,7 @@ def get_metadata():
             SELECT DISTINCT recipient_countries 
             FROM activities 
             WHERE recipient_countries IS NOT NULL
-            ORDER BY recipient_countries ASC
+            ORDER BY recipient_countries COLLATE NOCASE ASC
         """
         ).fetchall()
 
@@ -191,7 +191,7 @@ def get_metadata():
             SELECT DISTINCT recipient_organization 
             FROM activities 
             WHERE recipient_organization IS NOT NULL
-            ORDER BY recipient_organization ASC
+            ORDER BY recipient_organization COLLATE NOCASE ASC
         """
         ).fetchall()
 
