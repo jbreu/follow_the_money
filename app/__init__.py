@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from bmz import IatiActivity
 from kleineAnfrage208838 import read_kleine_anfrage208838_activities
 from kleineAnfrage2003843 import read_kleine_anfrage2003843_activities
+from demokratieleben1 import read_demokratieleben1_activities
 import os
 import xml.etree.ElementTree as ET
 from .database import (
@@ -52,6 +53,9 @@ def create_app():
                 if "2003843" in filename:
                     activities = read_kleine_anfrage2003843_activities(pdf_path)
 
+                if "demokratie-leben1" in filename:
+                    activities += read_demokratieleben1_activities(pdf_path)
+
                 batch_insert_activities(activities)
 
         # Load XML data into SQLite using batch inserts
@@ -91,8 +95,8 @@ def create_app():
             available_organizations=metadata["organizations"],
             available_countries=metadata["countries"],
             available_recipient_organizations=metadata["recipient_organizations"],
-            base_url=os.getenv('BASE_URL', ''),
-            subfolder=os.getenv('SUBFOLDER', '')
+            base_url=os.getenv("BASE_URL", ""),
+            subfolder=os.getenv("SUBFOLDER", ""),
         )
 
     return app
