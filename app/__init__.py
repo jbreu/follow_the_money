@@ -11,6 +11,7 @@ from .database import (
     get_metadata,
     get_activity_transactions,
 )
+from dotenv import load_dotenv
 
 
 def read_iati_activities(xml_file_path):
@@ -27,6 +28,7 @@ def read_iati_activities(xml_file_path):
 
 
 def create_app():
+    load_dotenv()
     app = Flask(__name__)
 
     # Initialize database only if it doesn't exist
@@ -89,6 +91,8 @@ def create_app():
             available_organizations=metadata["organizations"],
             available_countries=metadata["countries"],
             available_recipient_organizations=metadata["recipient_organizations"],
+            base_url=os.getenv('BASE_URL', ''),
+            subfolder=os.getenv('SUBFOLDER', '')
         )
 
     return app

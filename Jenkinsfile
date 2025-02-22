@@ -29,6 +29,11 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Create new .env file with production values
+                    sh '''
+                        echo "BASE_URL=https://jakobbr.eu" > .env
+                        echo "SUBFOLDER=/followthemoney/" >> .env
+                    '''
                     // Build the Docker image
                     sh 'docker build -t ${DOCKER_IMAGE_NAME} .'
                 }
