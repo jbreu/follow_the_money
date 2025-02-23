@@ -12,11 +12,19 @@ download_if_not_exists() {
 }
 
 # Read and process JSON file
-JSON=$(cat data_sources.json)
-SOURCES=$(echo "$JSON" | jq -r '.sources[]')
+if [ ! -f "data_sources.json" ]; then
+    echo "Error: data_sources.json not found"
+    exit 1
+fi
 
-echo "$SOURCES" | while IFS= read -r source; do
-    filename=$(echo "$source" | jq -r '.filename')
-    link=$(echo "$source" | jq -r '.link')
+if ! JSON=$(jq '.' data_sources.json 2>/dev/null); then
+    echo "Error: Invalid JSON format in data_sources.json"
+    exit 1
+fi
+
+if ! echo "$JSON" | jq -r '.sources[] | "\(.filename)|\(.link)"' | while IFS='|' read -r filename link; do
     download_if_not_exists "$filename" "$link"
-done
+done; then
+    echo "Error: Missing 'sources' array in JSON"
+    exit 1
+fi

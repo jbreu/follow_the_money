@@ -4,9 +4,8 @@ WORKDIR /python-docker
 
 COPY . .
 
-RUN apt install libxml2-dev libxslt-dev
+RUN apt update && apt install -y libxml2-dev libxslt-dev jq
 RUN python3 -m pip install -r requirements.txt
-RUN ls
 RUN chmod u+x retrieve_data.sh && ./retrieve_data.sh
 
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=5000"]
