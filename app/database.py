@@ -1,6 +1,7 @@
 import sqlite3
 from contextlib import contextmanager
 from tqdm import tqdm
+import json
 
 DATABASE_PATH = "app/activities.db"
 
@@ -17,6 +18,19 @@ def get_db():
 
 def init_db():
     with get_db() as conn:
+        conn.execute('PRAGMA encoding="UTF-8"')
+        conn.execute(
+            """
+        CREATE TABLE IF NOT EXISTS sources (
+            id TEXT PRIMARY KEY,
+            title TEXT,
+            link TEXT,
+            filename TEXT,
+            description TEXT
+        )
+        """
+        )
+
         conn.execute(
             """
         CREATE TABLE IF NOT EXISTS activities (
@@ -31,10 +45,13 @@ def init_db():
             recipient_organization TEXT,
             recipient_is_owned_by_german_federal_government BOOLEAN,
             legal_basis TEXT,
-            type_of_grant TEXT
+            type_of_grant TEXT,
+            source_id TEXT,
+            FOREIGN KEY (source_id) REFERENCES sources (id)
         )
         """
         )
+
         conn.execute(
             """
         CREATE TABLE IF NOT EXISTS transactions (
@@ -47,13 +64,31 @@ def init_db():
         )
         """
         )
+
+        # Load sources from JSON
+        with open("data_sources.json") as f:
+            sources = json.load(f)
+            for source in sources["sources"]:
+                conn.execute(
+                    """
+                INSERT OR REPLACE INTO sources VALUES (?, ?, ?, ?, ?)
+                """,
+                    (
+                        source["id"],
+                        source["title"],
+                        source["link"],
+                        source["filename"],
+                        source["description"],
+                    ),
+                )
+
         conn.commit()
 
 
 def _insert_activity(conn, activity):
     conn.execute(
         """
-    INSERT OR REPLACE INTO activities VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT OR REPLACE INTO activities VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """,
         (
             activity.identifier,
@@ -72,6 +107,7 @@ def _insert_activity(conn, activity):
             activity.recipient_is_owned_by_german_federal_government,
             activity.legal_basis,
             activity.type_of_grant,
+            activity.source_id,
         ),
     )
 
@@ -216,3 +252,8 @@ def get_activity_transactions(activity_id):
             """,
             (activity_id,),
         ).fetchall()
+
+
+def get_sources():
+    with get_db() as conn:
+        return conn.execute("SELECT * FROM sources ORDER BY title").fetchall()

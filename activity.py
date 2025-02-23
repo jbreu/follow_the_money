@@ -20,3 +20,4 @@ class Activity:
         self.recipient_is_owned_by_german_federal_government = None
         self.legal_basis = None
         self.type_of_grant = None
+        self.source_id = None

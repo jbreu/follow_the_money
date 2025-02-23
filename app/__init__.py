@@ -11,6 +11,7 @@ from .database import (
     get_filtered_activities,
     get_metadata,
     get_activity_transactions,
+    get_sources,
 )
 from dotenv import load_dotenv
 
@@ -32,6 +33,10 @@ def create_app():
     load_dotenv()
     app = Flask(__name__)
 
+    # Add this to ensure proper UTF-8 handling
+    app.config["JSON_AS_ASCII"] = False
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///activities.db?charset=utf8"
+
     # Initialize database only if it doesn't exist
     db_path = os.path.join(os.path.dirname(__file__), "activities.db")
 
@@ -49,12 +54,18 @@ def create_app():
 
                 if "2008838" in filename:
                     activities = read_kleine_anfrage208838_activities(pdf_path)
+                    for activity in activities:
+                        activity.source_id = "bundestag_2008838"
 
                 if "2003843" in filename:
                     activities = read_kleine_anfrage2003843_activities(pdf_path)
+                    for activity in activities:
+                        activity.source_id = "bundestag_2003843"
 
                 if "demokratie-leben1" in filename:
                     activities += read_demokratieleben1_activities(pdf_path)
+                    for activity in activities:
+                        activity.source_id = "demokratie_leben_1"
 
                 batch_insert_activities(activities)
 
@@ -63,6 +74,18 @@ def create_app():
             if filename.endswith(".xml"):
                 xml_path = os.path.join(input_dir, filename)
                 activities = read_iati_activities(xml_path)
+
+                source_id = None
+                if "bmz-iati-export" in filename:
+                    source_id = "bmz_iati"
+                elif "Ressorts_R" in filename:
+                    source_id = "bmz_ressorts_r"
+                elif "Ressorts_C" in filename:
+                    source_id = "bmz_ressorts_c"
+
+                for activity in activities:
+                    activity.source_id = source_id
+
                 batch_insert_activities(activities)
 
     @app.route("/")
@@ -97,6 +120,7 @@ def create_app():
             available_recipient_organizations=metadata["recipient_organizations"],
             base_url=os.getenv("BASE_URL", ""),
             subfolder=os.getenv("SUBFOLDER", ""),
+            sources=get_sources(),
         )
 
     return app

@@ -165,6 +165,9 @@
                         {% endif %}
                         {% if activity.legal_basis %}Legal Basis: {{ activity.legal_basis }}<br>{% endif %}
                         {% if activity.type_of_grant %}Type of Grant: {{ activity.type_of_grant }}<br>{% endif %}
+                        {% if activity.source_id %}
+                        Source: <a href="#source-{{ activity.source_id }}">{{ activity.source_id }}</a><br>
+                        {% endif %}
                     </small>
                 </p>
                 <details class="mt-2">
@@ -198,29 +201,11 @@
             <div class="card-body">
                 <h4 class="card-title">Data Sources</h4>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Transparenzportal des BMZ: <a
-                            href="https://www.transparenzportal.bund.de/api/v1/activities/download/xml/bmz-iati-export.xml">bmz-iati-export.xml</a>
+                    {% for source in sources %}
+                    <li id="source-{{ source.id }}" class="list-group-item">
+                        {{ source.title }}: <a href="{{ source.link }}">{{ source.description }}</a>
                     </li>
-                    <li class="list-group-item">Transparenzportal des BMZ: <a
-                            href="https://teamwork.bmz.de/pub/bscw.cgi/9134919/DE-1-Ressorts_R.xml">DE-1-Ressorts_R.xml</a>
-                    </li>
-                    <li class="list-group-item">Transparenzportal des BMZ: <a
-                            href="https://teamwork.bmz.de/pub/bscw.cgi/9134919/DE-1-Ressorts_C.xml">DE-1-Ressorts_C.xml</a>
-                    </li>
-                    <li class="list-group-item">Bundestag: <a
-                            href="https://dserver.bundestag.de/btd/20/088/2008838.pdf">Finanzierung von
-                            Nichtregierungsorganisationen (Nachfrage zur Antwort der
-                            Bundesregierung auf die Kleine Anfrage auf Bundestagsdrucksache 20/7884)</a>
-
-                    </li>
-                    <li class="list-group-item">Bundestag: <a
-                            href="https://dserver.bundestag.de/btd/20/038/2003843.pdf">Förderung von
-                            Nichtregierungsorganisationen durch die Bundesregierung</a>
-                    </li>
-                    <li class="list-group-item">Bundesministerium für Familie, Senioren, Frauen und Jugend: <a
-                            href="https://www.demokratie-leben.de/resource/blob/252438/699a8df5b62e79df459710d4108f99c7/fp1-bundesprogramm-abschlussbericht-2015-2019-data.pdf">Abschlussbericht
-                            Bundesprogramm: Demokratie leben! Erste Förderperiode (2015 bis 2019)</a>
-                    </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
