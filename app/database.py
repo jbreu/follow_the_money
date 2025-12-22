@@ -162,8 +162,10 @@ def get_filtered_activities(
         )
         params.extend([f"%{search}%", f"%{search}%", f"%{search}%"])
     if year:
-        conditions.append("start_date LIKE ?")
-        params.append(f"{year}%")
+        conditions.append(
+            "CAST(substr(start_date, 1, 4) AS INTEGER) <= ? AND CAST(substr(end_date, 1, 4) AS INTEGER) >= ?"
+        )
+        params.extend([int(year), int(year)])
     if organization:
         conditions.append("reporting_org LIKE ?")
         params.append(f"%{organization}%")
@@ -197,11 +199,21 @@ def get_metadata():
     with get_db() as conn:
         years = conn.execute(
             """
-            SELECT DISTINCT substr(start_date, 1, 4) as year 
-            FROM activities 
-            WHERE start_date IS NOT NULL
+            WITH year_range AS (
+            SELECT DISTINCT
+                CAST(substr(start_date, 1, 4) AS INTEGER) as start_year,
+                CAST(substr(end_date, 1, 4) AS INTEGER) as end_year
+            FROM activities
+            WHERE start_date IS NOT NULL AND end_date IS NOT NULL
+            ),
+            all_years AS (
+            SELECT start_year as year FROM year_range
+            UNION
+            SELECT end_year FROM year_range
+            )
+            SELECT DISTINCT year FROM all_years
             ORDER BY year DESC
-        """
+            """
         ).fetchall()
 
         orgs = conn.execute(

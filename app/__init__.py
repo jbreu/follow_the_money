@@ -3,6 +3,7 @@ from bmz import IatiActivity
 from kleineAnfrage208838 import read_kleine_anfrage208838_activities
 from kleineAnfrage2003843 import read_kleine_anfrage2003843_activities
 from demokratieleben1 import read_demokratieleben1_activities
+from demokratieleben_fp2 import read_fp2_activities
 import os
 import xml.etree.ElementTree as ET
 from .database import (
@@ -48,6 +49,7 @@ def create_app():
         # Load PDF data from input directory
         pdf_dir = os.path.join("input")
         for filename in os.listdir(pdf_dir):
+            print(f"Processing file: {filename}")
             if filename.endswith(".pdf"):
                 pdf_path = os.path.join(pdf_dir, filename)
                 activities = []
@@ -66,6 +68,55 @@ def create_app():
                     activities += read_demokratieleben1_activities(pdf_path)
                     for activity in activities:
                         activity.source_id = "demokratie_leben_1"
+
+                # FP2 datasets (multiple PDF files)
+                if "fp2-projekte-partnerschaften" in filename:
+                    new_acts = read_fp2_activities(pdf_path)
+                    for a in new_acts:
+                        a.source_id = "fp2_partnerschaften"
+                    activities += new_acts
+
+                if "fp2-projekte-landes-demokratiezentren" in filename:
+                    new_acts = read_fp2_activities(pdf_path)
+                    for a in new_acts:
+                        a.source_id = "fp2_landes_demokratiezentren"
+                    activities += new_acts
+
+                if "fp2-projekte-kompetenzzentren-und-kompetenznetzwerke" in filename:
+                    new_acts = read_fp2_activities(pdf_path)
+                    for a in new_acts:
+                        a.source_id = "fp2_kompetenzzentren"
+                    activities += new_acts
+
+                if "fp2-projekte-modellprojekte" in filename:
+                    new_acts = read_fp2_activities(pdf_path)
+                    for a in new_acts:
+                        a.source_id = "fp2_modellprojekte"
+                    activities += new_acts
+
+                if "fp2-projekte-forschungsvorhaben" in filename:
+                    new_acts = read_fp2_activities(pdf_path)
+                    for a in new_acts:
+                        a.source_id = "fp2_forschungsvorhaben"
+                    activities += new_acts
+
+                if "fp2-projekte-wissenschaftliche-begleitung" in filename:
+                    new_acts = read_fp2_activities(pdf_path)
+                    for a in new_acts:
+                        a.source_id = "fp2_wissenschaftliche_begleitung"
+                    activities += new_acts
+
+                if "fp2-projekte-begleitprojekte" in filename:
+                    new_acts = read_fp2_activities(pdf_path)
+                    for a in new_acts:
+                        a.source_id = "fp2_begleitprojekte"
+                    activities += new_acts
+
+                if "fp2-projekte-innovationsfonds" in filename:
+                    new_acts = read_fp2_activities(pdf_path)
+                    for a in new_acts:
+                        a.source_id = "fp2_innovationsfonds"
+                    activities += new_acts
 
                 batch_insert_activities(activities)
 

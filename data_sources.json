@@ -41,6 +41,62 @@
             "link": "https://www.demokratie-leben.de/resource/blob/252438/699a8df5b62e79df459710d4108f99c7/fp1-bundesprogramm-abschlussbericht-2015-2019-data.pdf",
             "filename": "demokratie-leben1.pdf",
             "description": "Abschlussbericht Bundesprogramm: Demokratie leben! Erste Förderperiode (2015 bis 2019)"
+        },
+        {
+            "id": "fp2_partnerschaften",
+            "title": "Demokratie leben! - Partnerschaften für Demokratie",
+            "link": "https://www.demokratie-leben.de/resource/blob/255814/d39e08e55e06566c7f26061ebf04c228/fp2-projekte-partnerschaften-fuer-demokratie-data.pdf",
+            "filename": "fp2-projekte-partnerschaften-fuer-demokratie-data.pdf",
+            "description": "Partnerschaften für Demokratie (FP2)"
+        },
+        {
+            "id": "fp2_landes_demokratiezentren",
+            "title": "Demokratie leben! - Landes-Demokratiezentren",
+            "link": "https://www.demokratie-leben.de/resource/blob/255818/4e36d2c87ffc274922a8a89efb62e5bb/fp2-projekte-landes-demokratiezentren-data.pdf",
+            "filename": "fp2-projekte-landes-demokratiezentren-data.pdf",
+            "description": "Landes-Demokratiezentren (FP2)"
+        },
+        {
+            "id": "fp2_kompetenzzentren",
+            "title": "Demokratie leben! - Kompetenzzentren und Kompetenznetzwerke",
+            "link": "https://www.demokratie-leben.de/resource/blob/255820/16874bba891933ef9ca5d193c9660c5b/fp2-projekte-kompetenzzentren-und-kompetenznetzwerke-data.pdf",
+            "filename": "fp2-projekte-kompetenzzentren-und-kompetenznetzwerke-data.pdf",
+            "description": "Kompetenzzentren und Kompetenznetzwerke (FP2)"
+        },
+        {
+            "id": "fp2_modellprojekte",
+            "title": "Demokratie leben! - Modellprojekte",
+            "link": "https://www.demokratie-leben.de/resource/blob/255816/ba255c9eb4df3cb541888928c4df572f/fp2-projekte-modellprojekte-data.pdf",
+            "filename": "fp2-projekte-modellprojekte-data.pdf",
+            "description": "Modellprojekte (FP2)"
+        },
+        {
+            "id": "fp2_forschungsvorhaben",
+            "title": "Demokratie leben! - Forschungsprojekte",
+            "link": "https://www.demokratie-leben.de/resource/blob/255824/486b2d816c769fc5c28eb770d2d36577/fp2-projekte-forschungsvorhaben-data.pdf",
+            "filename": "fp2-projekte-forschungsvorhaben-data.pdf",
+            "description": "Forschungsprojekte (FP2)"
+        },
+        {
+            "id": "fp2_wissenschaftliche_begleitung",
+            "title": "Demokratie leben! - Wissenschaftliche Begleitung",
+            "link": "https://www.demokratie-leben.de/resource/blob/255812/e9e75eb28d4d7a6dea83fb4e3c33365a/fp2-projekte-wissenschaftliche-begleitung-data.pdf",
+            "filename": "fp2-projekte-wissenschaftliche-begleitung-data.pdf",
+            "description": "Wissenschaftliche Begleitung (FP2)"
+        },
+        {
+            "id": "fp2_begleitprojekte",
+            "title": "Demokratie leben! - Begleitprojekte",
+            "link": "https://www.demokratie-leben.de/resource/blob/255826/bc677de337fb076639bfd5f3f1768839/fp2-projekte-begleitprojekte-data.pdf",
+            "filename": "fp2-projekte-begleitprojekte-data.pdf",
+            "description": "Begleitprojekte (FP2)"
+        },
+        {
+            "id": "fp2_innovationsfonds",
+            "title": "Demokratie leben! - Innovationsfonds",
+            "link": "https://www.demokratie-leben.de/resource/blob/255822/b1dbfe870d5aa262c9a80a34db710c68/fp2-projekte-innovationsfonds-data.pdf",
+            "filename": "fp2-projekte-innovationsfonds-data.pdf",
+            "description": "Innovationsfonds (FP2)"
         }
     ]
 }
